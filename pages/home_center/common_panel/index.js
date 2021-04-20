@@ -21,7 +21,7 @@ Page({
     sw_name:'',
     device_name: '宠物喂食器',
     titleItem: {
-      name: '',
+      name: '喂食器',
       value: '',
     },
     roDpList: {}, //只上报功能点
