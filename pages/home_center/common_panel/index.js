@@ -5,61 +5,73 @@ import wxMqtt from '../../../utils/mqtt/wxMqtt'
 
 Page({
 
-
-
   /**
    * 页面的初始数据
    */
   data: {
-    feednum:1,
-    swbutton:"喂食",
-    feedstate:[1,2,3],
-    min:1,
-    max:12,
-    step:1,
-    value:1,
-    sw_name:'',
-    device_name: '宠物喂食器',
+    device_name: '',
     titleItem: {
-      name: '喂食器',
+      name: '',
       value: '',
     },
     roDpList: {}, //只上报功能点
     rwDpList: {}, //可上报可下发功能点
     isRoDpListShow: false,
     isRwDpListShow: false,
-    forest: '/image/bg.jpg'
+    forest: '../../../image/b.jpg',
+  },
+
+  //下发功能点命令
+  controldeviceDP:function(e){
+  const id = e.currentTarget.id
+
+
+      const value = ! this.data.rwDpList.switch.value
+      const params = {
+        // name 云函数的名称，必须使用 ty-service
+        name: "ty-service",
+        data: {
+            action: "device.control",
+      // params 接口参数
+            params: {
+        "device_id": this.data.device_id , // 填写自己的设备 id
+        "commands": [{ "code": id, "value": value }] // 下面的命令，
+            }
+        }
+      }
+    
+    console.log('下发命令value=',value)
+
+    wx.cloud.callFunction(params).then(res =>{
+      console.log('开关按钮', res); // 结果里如果返回 true 则说明下发设备成功
+
+    }).catch(err => console.log('err', err))
+
   },
 
   /**
-  * 增量按钮函数
-  */
- onclickadd:function(){
+   * 跳转到电量统计页面
+   */
+  goto_electricity_count:function(){
+    const {device_id,device_name} = this.data
+    console.log('传到统计页面的id,name',device_id,device_name)
+    wx.navigateTo({url: `/pages/home_center/count/index?device_id=${device_id}&device_name=${device_name}`,
+    })
+  },
 
-  var d = this.data.feednum + 1
-  if( d > 12 ) d = 12
 
-  this.setData({feednum:d})
-},
-/**
- * 减量按钮函数
- */
-onclicksubtract:function(){
-  var d = this.data.feednum - 1
-  if(d < 1) d = 1
-  this.setData({feednum:d})
-},
+
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
+    onLoad: function (options) {
     const { device_id } = options
     this.setData({ device_id })
 
     // mqtt消息监听
     wxMqtt.on('message', (topic, newVal) => {
       const { status } = newVal
-      console.log(newVal)
+      console.log("mqtt消息监听newVal",newVal)
       this.updateStatus(status)
     })
   },
@@ -93,7 +105,24 @@ onclicksubtract:function(){
     const isRoDpListShow = Object.keys(roDpList).length > 0
     const isRwDpListShow = Object.keys(rwDpList).length > 0
 
-    this.setData({ titleItem, roDpList, rwDpList, device_name: name, isRoDpListShow, isRwDpListShow, roDpListLength, icon })
+    this.setData({ titleItem, roDpList, rwDpList, device_name: name, isRoDpListShow, isRwDpListShow, roDpListLength, icon})
+    console.log('onReady rwDpList=',rwDpList)
+
+    //status方法获取设备状态
+    const params = {
+      name: "ty-service",
+      data: {
+          action: "device.status",  //获取DP状态
+          params: {
+            "device_id": device_id, 
+          }
+      }
+    };
+    wx.cloud.callFunction(params).then(res =>{
+      const stu= res.result.data
+      this.updateStatus(stu)
+      console.log('获取DP状态', res) // 结果里如果返回 true 则说明成功
+    }).catch(err => console.log('err', err))
   },
 
   // 分离只上报功能点，可上报可下发功能点
@@ -134,16 +163,13 @@ onclicksubtract:function(){
   sendDp: async function (e) {
     const { dpCode, value } = e.detail
     const { device_id } = this.data
-
     const { success } = await deviceControl(device_id, dpCode, value)
   },
 
   updateStatus: function (newStatus) {
     let { roDpList, rwDpList, titleItem } = this.data
-
     newStatus.forEach(item => {
       const { code, value } = item
-
       if (typeof roDpList[code] !== 'undefined') {
         roDpList[code]['value'] = value;
       } else if (rwDpList[code]) {
@@ -153,15 +179,21 @@ onclicksubtract:function(){
 
     // 更新titleItem
     if (Object.keys(roDpList).length > 0) {
-      let keys = Object.keys(roDpList)[0];
+      let keys = Object.keys(roDpList)[1];
       titleItem = roDpList[keys];
     } else {
       let keys = Object.keys(rwDpList)[0];
       titleItem = rwDpList[keys];
     }
- 
+
     this.setData({ titleItem, roDpList: { ...roDpList }, rwDpList: { ...rwDpList } })
+
+
+
   },
+
+
+
 
   jumpTodeviceEditPage: function(){
     console.log('jumpTodeviceEditPage')
@@ -169,5 +201,6 @@ onclicksubtract:function(){
     wx.navigateTo({
       url: `/pages/home_center/device_manage/index?device_id=${device_id}&device_name=${device_name}&device_icon=${icon}`,
     })
-  }
+  },
+
 })

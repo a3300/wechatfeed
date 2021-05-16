@@ -1,0 +1,31 @@
+
+.pic-container{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+
+}
+
+.pic-item{
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 1;
+  flex-grow: 1;
+  height: 500rpx;
+  width: 100%;
+}
+
+.center{
+  display: flex;
+  flex-direction: row;
+  height: 100rpx;
+  justify-content: space-evenly;
+}
+.center-text{
+  display: flex;
+  flex-direction: row;
+  height: 50rpx;
+}
+.hover{
+  background-color: rgb(139, 139, 139);
+}

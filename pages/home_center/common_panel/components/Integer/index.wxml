@@ -1,5 +1,14 @@
 <!--pages/home_center/common_panel/components/Integer/index.wxml-->
 <view class="integer-container">
-  <view class="integer-name">{{dpName}}:{{value}}{{unit}}</view>
-  <van-slider min="{{min}}" step="{{step}}" max="{{max}}" value="{{value}}" active-color="#349fff" bind:change="onChange" />
+  <view class="integer-name">开关倒计时:{{value}}{{unit}}</view>
+ 
+  <view class="section-timelist" >
+    <picker mode="multiSelector" bindchange="bindMultiPickerChange" value="{{settime}}" range="{{multiArray}}">
+      <view  class="section-timelist2" hover-class="hover">
+        <view class="section-time" >{{multiArray[0][multiIndex[0]]}}</view> <view class="section-point"> : </view>
+        <view class="section-time" >{{multiArray[1][multiIndex[1]]}}</view> <view class="section-point"> : </view>
+        <view class="section-time" >{{multiArray[2][multiIndex[2]]}}</view>
+      </view>
+    </picker>
+  </view>
 </view>

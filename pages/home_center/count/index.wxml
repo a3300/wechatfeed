@@ -1,0 +1,29 @@
+
+<view class="pic-container">
+<canvas bindtouchend="yueTouchHandler" class="pic-item"  canvas-id="yueEle"  binderror="canvasIdErrorCallback"></canvas>
+</view>
+
+<view class="center">
+
+  <picker bindchange="bindPickerChange" value="{{selectTime}}" range="{{selectTimeAry}}">
+    <view class="picker">
+      选择统计方式：{{selectTimeAry[selectTime]}}
+    </view>
+  </picker>
+</view>
+<view wx:if="{{statisticalUnit == 'm'}}">
+  <picker mode="date"   fields="month"  bindchange="bindStartDateChange">  <button>开始范围{{' '+startTime}}</button></picker>
+  <picker mode="date"  fields="month"  bindchange="bindEndDateChange">  <button>结束范围{{' '+endTime}}</button></picker>
+</view>
+
+<view wx:elif="{{statisticalUnit == 'd'}}">
+  <picker mode="date"   fields="day"  bindchange="bindStartDateChange">  <button>开始范围{{' '+startTime}}</button></picker>
+  <picker mode="date"  fields="day"  bindchange="bindEndDateChange">  <button>结束范围{{' '+endTime}}</button></picker>
+</view>
+
+<view wx:elif="{{statisticalUnit == 'h'}}">
+  <picker mode="date"    bindchange="bindStartDateChange">  <button>日期范围{{' '+startTime}}</button></picker>
+
+
+</view>
+<button type="default" size="default" bindtap="drawline">查询</button>

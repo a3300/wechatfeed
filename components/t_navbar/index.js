@@ -12,7 +12,7 @@ Component({
    * 组件的初始数据
    */
   data: {
-    device_name: '宠物喂食器',
+    device_name: '未获取到名称',
     marginTop: '20px',
     height: 'auto',
   },

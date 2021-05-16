@@ -2,12 +2,16 @@
 <wxs src="./index.wxs" module="utils" />
 
 <image class="common-panel-backgroud" src="{{forest}}" />
-<navbar style="color:#ff762b" device_name="{{device_name}}" bind:jumpTodeviceEditPage="jumpTodeviceEditPage" />
-<!--
+<navbar device_name="{{device_name}}" bind:jumpTodeviceEditPage="jumpTodeviceEditPage" />
+
 <view class="common-panel-header">
-  <view class="common-panel-header-block">
-    <view class="common-panel-header-dpName">{{titleItem.name}}</view>
-    <view class="common-panel-header-dpValue">{{titleItem.value}}</view>
+  <view id="switch" class="common-panel-header-block" bindtap="controldeviceDP">
+    <view   wx:if="{{rwDpList.switch.value == true}}">
+      <image mode="aspectFit"  src="/image/sw_on.png">开</image>
+    </view>
+    <view wx:else="{{rwDpList.switch.value == false}}">
+      <image mode="aspectFit"  src="/image/sw_off.png">关</image>
+    </view>
   </view>
 </view>
 
@@ -15,8 +19,18 @@
   <view class="statuslist">
     <block wx:for="{{roDpList}}" wx:key="{{item.code}}" wx:for-item="item" wx:for-index='idx'>
       <view class="{{utils.countDpItem(roDpListLength,idx)}}">
-        <view class="roDpItem-dpName">{{item.code}}</view>
-        <view class="roDpItem-status">{{item.value}}</view>
+        <block wx:if="{{item.code == 'cur_current'}}">
+          <view class="roDpItem-dpName">电流</view>
+          <view class="roDpItem-status">{{item.value/1000 > 1 ? item.value/1000 + 'A': item.value + 'mA' }}</view>
+        </block>
+        <block wx:elif="{{item.code == 'cur_power'}}">
+          <view class="roDpItem-dpName">功率</view>
+          <view class="roDpItem-status">{{item.value/10 > 1000 ? item.value/10000 + 'KW' : item.value/10 + 'W'}}</view>
+        </block>
+        <block wx:elif="{{item.code == 'cur_voltage'}}">
+          <view class="roDpItem-dpName">电压</view>
+          <view class="roDpItem-status">{{item.value/10 + 'V'}}</view>
+        </block>
       </view>
     </block>
   </view>
@@ -25,34 +39,11 @@
 <view class="scroll-view">
   <block wx:if="{{isRwDpListShow}}">
     <block wx:for="{{rwDpList}}" wx:key="{{item.code}}" wx:for-item="item">
-      <block wx:if="{{item.type === 'Boolean'}}">
-        <Boolean model:isChecked="{{item.value}}" dpCode="{{item.code}}" dpName="{{item.name}}" bind:sendDp="sendDp" />
-      </block>
       <block wx:if="{{item.type === 'Integer'}}">
         <Integer model:value="{{item.value}}" values="{{item.values}}" dpCode="{{item.code}}" dpName="{{item.name}}"
           bind:sendDp="sendDp" />
       </block>
-      <block wx:if="{{item.type === 'Enum'}}">
-        <Enum model:value="{{item.value}}" values="{{item.values}}" dpCode="{{item.code}}" dpName="{{item.name}}"
-          bind:sendDp="sendDp" />
-      </block>
-
     </block>
   </block>
-</view>
--->
-
-
-<view >
-  <view class="center">
-    <image  class="center-image" src="/image/zhua.jpg"></image>
-    <text class="center-text" >喂食中</text>
-  </view>
-  <view  class="center2">  
-    <view bindtap="onclicksubtract" class="center2-block">-</view>
-    <view class="center2-block2">{{feednum}}</view>
-    <view bindtap="onclickadd" class="center2-block">+</view>
-    <button type="primary"  style="width: 182rpx; height: 96rpx; display: block; box-sizing: border-box; position: relative; left: -58rpx; top: 8rpx;background-color:#ff762b ;">喂食</button>
-  </view>
-<view class="bottom">喂食记录</view>
+  <button bindtap="goto_electricity_count">电量统计</button>
 </view>

@@ -1,5 +1,6 @@
 // 重新请求限制
 let count = 5;
+const expiredCode = 1004;
 
 export const login = async () => {
   const params = {
@@ -13,9 +14,30 @@ export const login = async () => {
     }
   };
 
-  const { uid } = await request(params);
+  const { uid, access_token } = await request(params);
   wx.setStorageSync('uid', uid);
+  wx.setStorageSync('access_token', access_token)
   return uid
+};
+
+//刷新token
+const refreshToken = async () => {
+  const params = {
+    name: 'ty-service',
+    data: {
+      action: 'user.refreshToken',
+      params: { refresh_token: wx.getStorageSync('refresh_token') },
+    },
+  };
+
+  const res = await request(params);
+  if (!res) return false;
+
+  const { uid, access_token, refresh_token } = res;
+  wx.setStorageSync('uid', uid);
+  wx.setStorageSync('access_token', access_token);
+  wx.setStorageSync('refresh_token', refresh_token);
+  return true;
 };
 
 const setUid = async (params) => {
@@ -23,15 +45,17 @@ const setUid = async (params) => {
     data: { action }
   } = params;
   let uid = wx.getStorageSync('uid');
+  let access_token = wx.getStorageSync('access_token')
   const isNoLogin = action !== 'user.wx-applet.synchronization';
   if (!uid && isNoLogin && count) {
     await login();
     count--;
     return setUid(params);
   }
-  if (uid && isNoLogin) {
+  if (access_token && uid && isNoLogin) {
     params.data.params || (params.data.params = {});
     params.data.params['uid'] = uid;
+    params.data['access_token'] = access_token;
   }
 };
 
@@ -44,8 +68,14 @@ const request = async (params) => {
     ).result;
     if (success && data === true) {
       return { success, t }
-    }else if(success) {
+    } else if (success) {
       return data
+    }
+
+    // token过期时，刷新token
+    if (+errorCode === expiredCode) {
+      const rSuccess = await refreshToken();
+      if (rSuccess) return request(params);
     }
 
     wx.showToast({
@@ -64,5 +94,7 @@ const request = async (params) => {
   }
   return [];
 };
+
+
 
 export default request;

@@ -33,6 +33,7 @@ Page({
     deviceList.forEach(item => {
       item.icon = `https://images.tuyacn.com/${item.icon}`
     })
+    console.log('deviceList',deviceList)
     this.setData({ deviceList })
   },
 
@@ -44,6 +45,7 @@ Page({
   },
 
   jumpToPanel({currentTarget}) {
+    console.log('currentTarget',currentTarget)
     const { dataset: { device } } = currentTarget
     const { id, category, name } = device
     switch (category) {

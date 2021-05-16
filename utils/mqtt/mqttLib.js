@@ -48,7 +48,7 @@ function aesDecrypt(encryptedMessage, secretPassphrase, option) {
   );
 }
 
-// 校验是否为mqtt的连接
+// 校验是否为的连接
 function isMqttConnection(config) {
   if (!config) return false;
   let protocols = config.protocols;
